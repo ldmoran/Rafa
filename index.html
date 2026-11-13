@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Viernes 13 · para Rafita</title>
+<style>
+  :root{--y:#ffd60a;--amber:#ff9f1c;--red:#c1121f;--paper:#f3e3ae;--ink:#2b1d0a;--mx:50%;--my:35%}
+  *{box-sizing:border-box;margin:0}
+  html{scroll-behavior:smooth}
+  body{
+    min-height:100vh;color:#fff;font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden;
+    background:linear-gradient(180deg,#03050a 0%,#0a1510 55%,#10200f 100%);background-attachment:fixed;
+    padding-bottom:260px;
+  }
+  h1,h2,.slab{font-family:Georgia,'Times New Roman',serif;font-weight:900;letter-spacing:1px}
+
+  /* ---------- ambiente ---------- */
+  .moon{position:fixed;top:4vh;left:50%;margin-left:clamp(-40px,-6vw,-80px);width:clamp(90px,15vw,160px);aspect-ratio:1;border-radius:50%;
+    background:radial-gradient(circle at 35% 35%,#fffbe0,#ffe066 60%,#e0b83a);z-index:0;
+    box-shadow:0 0 60px 20px rgba(255,214,10,.35),0 0 180px 70px rgba(255,159,28,.18);animation:glow 6s ease-in-out infinite alternate}
+  .moon::before,.moon::after{content:"";position:absolute;border-radius:50%;background:rgba(150,110,20,.25)}
+  .moon::before{width:22%;height:22%;left:24%;top:30%}.moon::after{width:14%;height:14%;left:58%;top:56%}
+  @keyframes glow{to{box-shadow:0 0 80px 30px rgba(255,214,10,.5),0 0 220px 90px rgba(255,159,28,.28)}}
+  canvas#sky{position:fixed;inset:0;z-index:0;pointer-events:none}
+  #trees{position:fixed;left:0;bottom:0;width:100%;height:230px;z-index:1;pointer-events:none}
+  .fog{position:fixed;left:-20%;width:140%;height:240px;bottom:-60px;z-index:1;pointer-events:none;
+    background:radial-gradient(ellipse at center,rgba(255,230,150,.16),transparent 65%);filter:blur(30px);animation:drift 20s ease-in-out infinite alternate}
+  .fog.f2{bottom:70px;opacity:.7;animation-duration:30s;animation-direction:alternate-reverse}
+  @keyframes drift{from{transform:translateX(-8%)}to{transform:translateX(8%)}}
+  /* linterna: oscurece todo menos donde está el cursor */
+  #dark{position:fixed;inset:0;z-index:4;pointer-events:none;
+    background:radial-gradient(circle 300px at var(--mx) var(--my),transparent 0,rgba(0,0,0,.18) 55%,rgba(0,0,0,.55) 100%)}
+  .flash{position:fixed;inset:0;background:#fff7c2;opacity:0;pointer-events:none;z-index:90}
+  .flash.go{animation:zap .8s ease-out}
+  @keyframes zap{0%{opacity:0}8%{opacity:.7}16%{opacity:.08}26%{opacity:.5}100%{opacity:0}}
+  .fall{position:fixed;top:-40px;pointer-events:none;animation:fall linear forwards;z-index:3;color:var(--y);text-shadow:0 0 10px rgba(255,214,10,.7)}
+  @keyframes fall{to{transform:translateY(115vh) rotate(300deg);opacity:.15}}
+
+  /* ---------- intro ---------- */
+  #intro{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+    text-align:center;padding:24px;background:radial-gradient(circle at 50% 40%,#1a2a12,#020304 75%);transition:opacity 1.3s,visibility 1.3s}
+  #intro.hide{opacity:0;visibility:hidden}
+  #intro .t1{font-size:clamp(22px,5vw,34px);letter-spacing:10px;color:var(--y);opacity:.9}
+  #intro .big{font-size:clamp(90px,26vw,210px);line-height:.9;color:var(--y);
+    text-shadow:0 0 25px rgba(255,214,10,.9),0 0 80px rgba(255,159,28,.6),4px 4px 0 var(--red);animation:flick 3.2s infinite}
+  @keyframes flick{0%,100%{opacity:1}44%{opacity:1}45%{opacity:.25}46%{opacity:1}50%{opacity:.5}51%{opacity:1}}
+  #intro p{color:#ffeaa0;font-size:clamp(15px,3.4vw,20px);max-width:430px;line-height:1.5}
+  button,.btn{font-family:inherit;background:linear-gradient(135deg,var(--y),var(--amber));color:#1b1200;border:0;font-weight:800;
+    padding:14px 32px;border-radius:50px;font-size:17px;cursor:pointer;text-decoration:none;display:inline-block;
+    box-shadow:0 0 28px rgba(255,214,10,.45);transition:transform .2s}
+  button:hover,.btn:hover{transform:scale(1.06)}button:active{transform:scale(.95)}
+  #intro small{opacity:.6;font-size:13px}
+
+  #mute{position:fixed;top:14px;left:14px;z-index:60;padding:8px 16px;font-size:14px;background:rgba(0,0,0,.55);color:#fff;
+    border:1px solid rgba(255,214,10,.5);box-shadow:none;font-weight:600}
+  #song{position:fixed;left:14px;bottom:14px;z-index:60;display:none;background:var(--y);color:#1b1200;padding:12px 20px;font-size:15px}
+
+  /* ---------- contenido ---------- */
+  main{position:relative;z-index:2;max-width:760px;margin:0 auto;padding:0 20px}
+  section{padding:70px 0 20px;opacity:0;transform:translateY(40px);transition:all 1s}
+  section.in{opacity:1;transform:none}
+  .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:18px;padding-top:140px}
+  .cal{width:150px;background:#fff;border-radius:14px;overflow:hidden;color:#111;box-shadow:0 12px 40px rgba(0,0,0,.6),0 0 40px rgba(255,214,10,.3);
+    transform:rotate(-4deg);animation:float 4s ease-in-out infinite}
+  .cal .top{background:var(--red);color:#fff;font-weight:800;letter-spacing:4px;padding:8px 0;font-size:15px}
+  .cal .d{font:900 84px/1.1 Georgia,serif;position:relative}
+  .cal .d::after{content:"";position:absolute;inset:8px 18px;border:5px solid var(--red);border-radius:50%;transform:rotate(-8deg);opacity:.85}
+  @keyframes float{50%{transform:rotate(3deg) translateY(-10px)}}
+  .hero h1{font-size:clamp(34px,8vw,64px);line-height:1.05;color:var(--y);text-shadow:0 0 20px rgba(255,214,10,.5),3px 3px 0 var(--red)}
+  .hero p{color:#ffeaa0;font-size:18px;max-width:440px;line-height:1.5}
+  .scroll{margin-top:10px;font-size:14px;opacity:.7;animation:bob 1.6s infinite}
+  @keyframes bob{50%{transform:translateY(8px)}}
+  h2{color:var(--y);font-size:clamp(24px,5vw,32px);margin-bottom:22px;text-align:center;text-shadow:2px 2px 0 var(--red)}
+
+  .paper{background:var(--paper);color:var(--ink);border-radius:4px;padding:34px 28px 30px;font:18px/1.75 'Courier New',monospace;
+    box-shadow:0 14px 40px rgba(0,0,0,.6);transform:rotate(-1deg);position:relative;min-height:330px;white-space:pre-wrap;
+    background-image:repeating-linear-gradient(transparent 0 31px,rgba(120,80,20,.13) 31px 32px)}
+  .paper::before{content:"";position:absolute;top:-14px;left:50%;width:90px;height:26px;margin-left:-45px;background:rgba(255,214,10,.75);transform:rotate(3deg)}
+  .paper .cur{display:inline-block;width:9px;height:18px;background:var(--ink);vertical-align:middle;animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+
+  .file{background:#101712;border:2px dashed rgba(255,214,10,.5);border-radius:10px;padding:24px;position:relative}
+  .stamp{position:absolute;top:14px;right:16px;border:3px solid var(--red);color:var(--red);font:900 18px Georgia,serif;
+    padding:4px 10px;transform:rotate(12deg);letter-spacing:2px;opacity:.9}
+  .row{margin:16px 0}
+  .row .lab{display:flex;justify-content:space-between;gap:10px;font-size:15px;color:#ffeaa0;margin-bottom:6px}
+  .bar{height:14px;border-radius:10px;background:#222;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--amber),var(--y));border-radius:10px;
+    transition:width 2.2s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 14px var(--y)}
+  .data{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin-bottom:10px;font-size:16px;padding-top:14px}
+  .data b{color:var(--y)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+  .card{background:rgba(255,214,10,.07);border:1px solid rgba(255,214,10,.35);border-radius:12px;padding:22px;
+    transition:transform .3s,box-shadow .3s}
+  .card:hover{transform:translateY(-6px) rotate(-1deg);box-shadow:0 0 30px rgba(255,214,10,.3)}
+  .card .n{font:900 34px Georgia,serif;color:var(--y);opacity:.8}
+  .card p{margin-top:6px;font-size:17px;color:#fff3c0;line-height:1.45}
+
+  .final{text-align:center}
+  .final h1{font-size:clamp(30px,7vw,50px);color:var(--y);text-shadow:0 0 25px rgba(255,214,10,.5),3px 3px 0 var(--red)}
+  .final p{color:#ffeaa0;margin:12px 0 22px;font-size:18px}
+  #secret{margin-top:20px;font-size:19px;min-height:30px;color:#fff}
+  .final button{margin:6px}
+  footer{text-align:center;margin-top:40px;font-size:13px;opacity:.65;padding-bottom:20px}
+  footer a{color:var(--y)}
+
+  /* ---------- Jason ---------- */
+  #jason{position:fixed;right:max(6px,2vw);bottom:-6px;z-index:8;width:clamp(130px,22vw,210px);cursor:pointer;
+    transform-origin:50% 100%;animation:sway 3.4s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(255,214,10,.4))}
+  @keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg) translateY(-6px)}}
+  #jason .heartEye{transform-box:fill-box;transform-origin:center;animation:beat 1.1s ease-in-out infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.35)}30%{transform:scale(1)}45%{transform:scale(1.25)}}
+  .bubble{position:fixed;right:clamp(120px,24vw,230px);bottom:clamp(150px,26vw,240px);z-index:9;background:#fff;color:#2a1a00;
+    padding:10px 16px;border-radius:18px 18px 4px 18px;font-weight:700;font-size:15px;box-shadow:0 8px 25px rgba(0,0,0,.5);
+    opacity:0;transform:scale(.7);transform-origin:100% 100%;transition:all .4s;max-width:210px;pointer-events:none}
+  .bubble.on{opacity:1;transform:scale(1)}
+  @media(max-width:560px){.bubble{right:12px;bottom:205px;font-size:13px}}
+  #yt{position:fixed;width:200px;height:200px;opacity:0;pointer-events:none;left:-400px;top:0}
+</style>
+</head>
+<body>
+
+<div class="moon"></div>
+<canvas id="sky"></canvas>
+<div class="fog"></div><div class="fog f2"></div>
+<svg id="trees" preserveAspectRatio="none"></svg>
+<div id="dark"></div>
+<div class="flash" id="flash"></div>
+<div id="intro">
+  <div class="t1 slab">VIERNES</div>
+  <div class="big slab">13</div>
+  <p>Feliz viernes 13, Rafita. Jason y yo te hicimos algo.</p>
+  <button id="open">Abrir</button>
+</div>
+
+<main>
+  <section class="hero in" id="hero">
+    <div class="cal"><div class="top">VIERNES</div><div class="d slab">13</div></div>
+    <h1>Feliz Viernes 13,<br>Rafita</h1>
+    <p>Dicen que hoy da mala suerte. A mí me dio la excusa perfecta para decirte lo que pienso de ti.</p>
+    <div class="scroll">sigue bajando ↓</div>
+  </section>
+
+  <section id="s-carta">
+    <h2>Una carta desde Camp Crystal Lake</h2>
+    <div class="paper"><span id="letter"></span><span class="cur"></span></div>
+  </section>
+
+  <section id="s-file">
+    <h2>Expediente: Rafita</h2>
+    <div class="file">
+      <div class="stamp">CONFIDENCIAL</div>
+      <div class="data">
+        <b>Nombre:</b><span>Rafita</span>
+        <b>Visto por última vez:</b><span>en mi pantalla, todavía no en persona</span>
+        <b>Se le acusa de:</b><span>llamarme la atención sin conocernos aún</span>
+        <b>Estado:</b><span>culpable, y no pienso apelar</span>
+      </div>
+      <div class="row"><div class="lab"><span>Risa contagiosa</span><span>100%</span></div><div class="bar"><i data-v="100"></i></div></div>
+      <div class="row"><div class="lab"><span>Facilidad para alegrar el día</span><span>97%</span></div><div class="bar"><i data-v="97"></i></div></div>
+      <div class="row"><div class="lab"><span>Mala suerte hoy (revisado por Jason)</span><span>0%</span></div><div class="bar"><i data-v="1"></i></div></div>
+      <div class="row"><div class="lab"><span>Simpatía</span><span>se salió de la barra</span></div><div class="bar"><i data-v="100"></i></div></div>
+    </div>
+  </section>
+
+  <section id="s-razones">
+    <h2>Cosas que me gustan de ti</h2>
+    <div class="grid">
+      <div class="card"><div class="n">01</div><p>Cómo eres cuando conversamos.</p></div>
+      <div class="card"><div class="n">02</div><p>Que me dan ganas de seguir hablando contigo.</p></div>
+      <div class="card"><div class="n">03</div><p>Que me da curiosidad todo lo que aún no sé de ti.</p></div>
+      <div class="card"><div class="n">04</div><p>Que hasta un viernes 13 contigo, a distancia, se siente a buena suerte.</p></div>
+    </div>
+  </section>
+
+  <section class="final" id="s-final">
+    <h1>Hoy no te va a pasar nada malo</h1>
+    <p>Y si pasa, aquí estoy. Jason también.</p>
+    <button id="hug">Abrazo de Jason</button>
+    <button id="btn">Otra frase</button>
+    <div id="secret"></div>
+  </section>
+</main>
+
+<div class="bubble" id="bubble">ki ki ki, ma ma ma</div>
+
+<!-- Jason (versión tierna) -->
+<svg id="jason" viewBox="0 0 200 270" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10 270 C10 205 45 175 100 175 C155 175 190 205 190 270Z" fill="#3b4a3a"/>
+  <path d="M70 178 L100 215 L130 178" fill="#2a3529"/>
+  <ellipse cx="100" cy="100" rx="52" ry="68" fill="#f3f0e4" stroke="#c9c4b0" stroke-width="3"/>
+  <path d="M100 40 L90 72 L110 72Z" fill="#c1121f"/>
+  <path d="M60 92 L82 98 L66 112Z" fill="#c1121f" opacity=".9"/>
+  <path d="M140 92 L118 98 L134 112Z" fill="#c1121f" opacity=".9"/>
+  <circle cx="78" cy="62" r="3.2" fill="#2a2a2a"/><circle cx="122" cy="62" r="3.2" fill="#2a2a2a"/>
+  <circle cx="88" cy="52" r="3" fill="#2a2a2a"/><circle cx="112" cy="52" r="3" fill="#2a2a2a"/>
+  <ellipse cx="78" cy="96" rx="15" ry="12" fill="#1b1030"/><ellipse cx="122" cy="96" rx="15" ry="12" fill="#1b1030"/>
+  <path class="heartEye" d="M78 104 C66 96 68 89 73 89 C76 89 78 91 78 93 C78 91 80 89 83 89 C88 89 90 96 78 104Z" fill="#ff6fae"/>
+  <path class="heartEye" d="M122 104 C110 96 112 89 117 89 C120 89 122 91 122 93 C122 91 124 89 127 89 C132 89 134 96 122 104Z" fill="#ff6fae"/>
+  <circle cx="62" cy="122" r="3" fill="#2a2a2a"/><circle cx="72" cy="128" r="3" fill="#2a2a2a"/><circle cx="64" cy="136" r="3" fill="#2a2a2a"/>
+  <circle cx="138" cy="122" r="3" fill="#2a2a2a"/><circle cx="128" cy="128" r="3" fill="#2a2a2a"/><circle cx="136" cy="136" r="3" fill="#2a2a2a"/>
+  <ellipse cx="55" cy="112" rx="9" ry="5" fill="#ffb3d1" opacity=".7"/><ellipse cx="145" cy="112" rx="9" ry="5" fill="#ffb3d1" opacity=".7"/>
+  <path d="M100 110 L100 128" stroke="#2a2a2a" stroke-width="3" stroke-linecap="round"/>
+  <path d="M88 150 L112 150 M92 158 L108 158 M96 166 L104 166" stroke="#2a2a2a" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M100 262 C52 228 56 190 84 192 C95 193 100 202 100 207 C100 202 105 193 116 192 C144 190 148 228 100 262Z" fill="#ffd60a" stroke="#fff" stroke-width="3"/>
+  <path d="M82 202 C76 204 74 210 76 214" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>
+  <circle cx="58" cy="232" r="12" fill="#cfc6b0"/><circle cx="142" cy="232" r="12" fill="#cfc6b0"/>
+</svg>
+
+<script>
+/* ===== EDITA AQUÍ: carta y frases ===== */
+const firma = "";   // ej: "— Luis"
+const carta = "Rafita:\n\nHoy es viernes 13 y quise hacer algo distinto. Sé que todavía no nos hemos visto en persona, y aun así me llamas la atención de una forma que no me esperaba.\n\nNo sé bien cómo explicarlo. Me gusta cómo eres con las palabras, me gusta que me den ganas de seguir hablando contigo, y me da curiosidad todo lo que aún no sé de ti.\n\nHice esto con Jason de testigo para que, de paso, te saque una sonrisa. Y para decirte, sin apuro, que me encantaría conocerte en persona algún día.";
+const mensajesSecretos = ["Me llamas la atención, y ya no lo voy a negar.","Tengo muchas ganas de conocerte en persona.","Si esto te sacó una sonrisa, valió la pena.","Prometo que en persona soy más tranquilo que Jason.","No tengo prisa. Solo ganas."];
+/* "ki ki ki, ma ma ma" es el sonido de Jason en las películas */
+const frasesJason = ["ki ki ki, ma ma ma","Cuidado con el lago","Feliz viernes 13, Rafita","No soy tan malo, ¿ves?","Él es tímido, yo hablo por él","Hoy vine de cupido, no de otra cosa"];
+
+/* ---------- cielo: estrellas y luciérnagas ---------- */
+const cv=document.getElementById('sky'),cx=cv.getContext('2d');let stars=[],flies=[];
+function sizeSky(){cv.width=innerWidth;cv.height=innerHeight;
+  stars=Array.from({length:120},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height*.7,r:Math.random()*1.5+.3,p:Math.random()*6}));
+  flies=Array.from({length:22},()=>({x:Math.random()*cv.width,y:cv.height*.5+Math.random()*cv.height*.5,p:Math.random()*6,s:.2+Math.random()*.5}));}
+sizeSky();addEventListener('resize',sizeSky);
+(function loop(t){cx.clearRect(0,0,cv.width,cv.height);
+  for(const s of stars){cx.globalAlpha=.3+.7*Math.abs(Math.sin(t/900+s.p));cx.fillStyle='#fff';cx.beginPath();cx.arc(s.x,s.y,s.r,0,7);cx.fill();}
+  for(const f of flies){f.x+=Math.sin(t/1500+f.p)*f.s;f.y+=Math.cos(t/1900+f.p)*f.s*.7;
+    cx.globalAlpha=.4+.6*Math.abs(Math.sin(t/500+f.p));cx.fillStyle='#ffe94d';cx.shadowColor='#ffd60a';cx.shadowBlur=14;
+    cx.beginPath();cx.arc(f.x,f.y,2.4,0,7);cx.fill();cx.shadowBlur=0;}
+  requestAnimationFrame(loop);})(0);
+
+/* ---------- pinos ---------- */
+(function(){
+  const svg=document.getElementById('trees');svg.setAttribute('viewBox','0 0 1200 230');let p='',x=-20;
+  while(x<1240){const h=90+Math.random()*120,w=34+Math.random()*30;
+    p+=`<polygon points="${x},230 ${x+w/2},${230-h} ${x+w},230" fill="#04080a"/>`;
+    p+=`<polygon points="${x+6},${230-h*.45} ${x+w/2},${230-h*.9} ${x+w-6},${230-h*.45}" fill="#04080a"/>`;
+    x+=w*.55;}
+  svg.innerHTML=p;})();
+
+/* ---------- linterna (sigue al mouse o al dedo) ---------- */
+function light(e){const t=e.touches?e.touches[0]:e;
+  document.documentElement.style.setProperty('--mx',t.clientX+'px');
+  document.documentElement.style.setProperty('--my',t.clientY+'px');}
+addEventListener('pointermove',light);addEventListener('touchmove',light,{passive:true});
+
+/* ---------- corazones amarillos cayendo ---------- */
+function fall(){const h=document.createElement('div');h.className='fall';
+  h.textContent=Math.random()<.75?'♥':'✦';h.style.left=Math.random()*100+'vw';
+  h.style.fontSize=(12+Math.random()*24)+'px';h.style.animationDuration=(5+Math.random()*6)+'s';
+  document.body.appendChild(h);setTimeout(()=>h.remove(),11000);}
+function burst(n=30){for(let k=0;k<n;k++)setTimeout(fall,k*45);}
+
+/* ---------- relámpagos ---------- */
+function lightning(){const f=document.getElementById('flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');
+  setTimeout(lightning,9000+Math.random()*9000);}
+
+/* ---------- Jason habla ---------- */
+let fi=0;const bub=document.getElementById('bubble');let bt;
+function say(txt){bub.textContent=txt||frasesJason[fi++%frasesJason.length];bub.classList.add('on');
+  clearTimeout(bt);bt=setTimeout(()=>bub.classList.remove('on'),3200);}
+function autoSpeak(){say();setTimeout(autoSpeak,8000);}
+document.getElementById('jason').onclick=()=>{say();burst(10);};
+
+/* ---------- aparecer al bajar ---------- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting)return;e.target.classList.add('in');
+  if(e.target.id==='s-file')document.querySelectorAll('.bar i').forEach(i=>i.style.width=i.dataset.v+'%');
+  if(e.target.id==='s-carta')typeLetter();
+}),{threshold:.25});
+document.querySelectorAll('section').forEach(s=>io.observe(s));
+let typed=false;
+function typeLetter(){if(typed)return;typed=true;const el=document.getElementById('letter'),full=carta+(firma?'\n\n'+firma:'');let i=0;
+  (function t(){el.textContent=full.slice(0,++i);if(i<full.length)setTimeout(t,full[i-1]==='\n'?250:38);})();}
+
+/* ---------- botones ---------- */
+document.getElementById('open').onclick=()=>{
+  document.getElementById('intro').classList.add('hide');
+  setTimeout(()=>{lightning();setInterval(fall,600);burst(20);},600);
+  setTimeout(autoSpeak,3500);
+};
+document.getElementById('hug').onclick=()=>{say('Gracias por dejarme abrazarte');burst(40);};
+let i=0;
+document.getElementById('btn').onclick=()=>{
+  document.getElementById('secret').textContent=mensajesSecretos[i++%mensajesSecretos.length];burst(20);};
+</script>
+</body>
+</html>
